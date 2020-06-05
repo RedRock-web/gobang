@@ -17,6 +17,11 @@ const (
 	host       = "localhost"
 )
 
+type User struct {
+
+}
+
+
 func Register(c *gin.Context) {
 	var l configs.LoginForm
 
@@ -41,7 +46,7 @@ func Register(c *gin.Context) {
 	}
 
 	c.SetCookie(CookieName, data, 1000, "/", host, false, true)
-	response.Ok(c)
+	response.OkWithData(c, "register successful!")
 }
 
 func Login(c *gin.Context) {

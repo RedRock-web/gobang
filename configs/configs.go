@@ -13,3 +13,7 @@ type InfoForm struct {
 	Age      int
 	Gender   string
 }
+
+type RoomInfo struct {
+	Id int
+}

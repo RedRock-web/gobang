@@ -18,11 +18,26 @@ func Start() {
 }
 
 func SetRouter(r *gin.Engine) {
+	users := r.Group("")
 	{
-		r.POST("/register", user.Register)
-		r.POST("/login", user.Login)
-		r.POST("/get-info", user.GetInfo)
-		r.POST("/modify-info", middleware.Auth(), user.ModifyInfo)
+		users.POST("/register", user.Register)
+		users.POST("/login", user.Login)
+		users.POST("/get-info", user.GetInfo)
+		users.POST("/modify-info", middleware.Auth(), user.ModifyInfo)
 	}
 
+	room := r.Group("", middleware.Auth())
+	{
+		room.POST("/create-room")
+		room.POST("/join-room")
+		room.POST("/out-room")
+		room.POST("ready")
+	}
+
+	game := r.Group("")
+	{
+		game.POST("start-game")
+		game.POST("end-game")
+		game.POST("play-chess")
+	}
 }
