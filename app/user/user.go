@@ -1,0 +1,148 @@
+//@program: gobang
+//@author: edte
+//@create: 2020-06-05 20:58
+package user
+
+import (
+	"github.com/gin-gonic/gin"
+	"gobang/configs"
+	"gobang/db"
+	"gobang/jwts"
+	"gobang/logs"
+	"gobang/response"
+)
+
+const (
+	CookieName = "jwts"
+	host       = "localhost"
+)
+
+func Register(c *gin.Context) {
+	var l configs.LoginForm
+
+	if err := c.ShouldBindJSON(&l); err != nil {
+		response.FormError(c)
+		return
+	}
+
+	if IsRegister(l) {
+		response.Error(c, 10001, "user exsits!")
+		return
+	} else {
+		_ = AddUser(l)
+	}
+
+	jwt := jwts.NewJwt()
+	data, err := jwt.Create(l, jwts.Key)
+
+	if err != nil {
+		logs.Error.Println(err)
+		return
+	}
+
+	c.SetCookie(CookieName, data, 1000, "/", host, false, true)
+	response.Ok(c)
+}
+
+func Login(c *gin.Context) {
+	var l configs.LoginForm
+
+	if err := c.ShouldBindJSON(&l); err != nil {
+		response.FormError(c)
+		return
+	}
+
+	if !IsRegister(l) {
+		response.Error(c, 10002, "not registered!")
+		return
+	}
+
+	jwt := jwts.NewJwt()
+	data, err := jwt.Create(l, jwts.Key)
+
+	if err != nil {
+		logs.Error.Println(err)
+		return
+	}
+
+	if PasswordIsOk(l) {
+		c.SetCookie(CookieName, data, 1000, "/", host, false, true)
+		response.OkWithData(c, "login successful!")
+	} else {
+		response.Error(c, 10003, "password not right!")
+	}
+
+}
+
+func PasswordIsOk(l configs.LoginForm) bool {
+	var u db.User
+	db.MysqlClient.Where(db.User{Username: l.Username, Password: l.Password}).First(&u)
+	return u.Gender != ""
+}
+
+func IsRegister(l configs.LoginForm) bool {
+	var u db.User
+	db.MysqlClient.Where("username = ?", l.Username).First(&u)
+	return u.Gender != ""
+}
+
+func AddUser(l configs.LoginForm) error {
+	return db.MysqlClient.Create(&db.User{Username: l.Username, Password: l.Password, Age: 0, Gender: "male"}).Error
+}
+
+func GetInfo(c *gin.Context) {
+	var i configs.InfoForm
+
+	if err := c.ShouldBindJSON(&i); err != nil {
+		response.FormError(c)
+		return
+	}
+
+	l := configs.LoginForm{
+		Username: i.Username,
+		Password: "",
+	}
+
+	if IsRegister(l) {
+		response.Error(c, 10002, "not registered!")
+		return
+	}
+
+	var u db.User
+
+	if err := db.MysqlClient.Where("username = ?", i.Username).First(&u).Error; err != nil {
+		logs.Error.Println(err)
+		return
+	}
+
+	response.OkWithData(c, gin.H{
+		"username": u.Username,
+		"gender":   u.Gender,
+		"age":      u.Age,
+	})
+}
+
+func ModifyInfo(c *gin.Context) {
+	var i configs.InfoForm
+
+	if err := c.ShouldBindJSON(&i); err != nil {
+		response.FormError(c)
+		return
+	}
+
+	l := configs.LoginForm{
+		Username: i.Username,
+		Password: "",
+	}
+
+	if IsRegister(l) {
+		response.Error(c, 10002, "not registered!")
+		return
+	}
+
+	if err := db.MysqlClient.Create(&db.User{Age: i.Age, Gender: i.Gender}).Error; err != nil {
+		logs.Error.Println(err)
+		return
+	}
+	response.Ok(c)
+}
