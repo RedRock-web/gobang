@@ -43,6 +43,8 @@ type Room struct {
 	password      int          // 房间密码
 	spectators    map[int]bool // 观众
 	msg           string       // 发的消息
+	peaceFlag     map[int]bool // 求和
+	confessFlag   map[int]bool // 认输
 }
 
 // NewRoom 在当前房间列表中新建一个房间
@@ -65,6 +67,8 @@ func NewRoom(uid int) *Room {
 		password:      0,
 		spectators:    map[int]bool{},
 		msg:           "",
+		peaceFlag:     map[int]bool{},
+		confessFlag:   map[int]bool{},
 	}
 	RoomList.Rooms[room.id] = room
 
@@ -88,6 +92,36 @@ func (room *Room) IsPasswdOk(passwd int) bool {
 	return room.password == passwd
 }
 
+//IsBlackPlayer 用于当前用用户判断是否是黑色玩家 
+func (room *Room) IsBlackPlayer() bool {
+	return configs.Uid == room.playerBlack
+}
+
+//SetPeaceFlag 用于同意求和
+func (room *Room) SetPeaceFlag() {
+	room.peaceFlag[configs.Uid] = true
+}
+
+//SetConfessFlag 用于同意求和
+func (room *Room) SetConfessFlag() {
+	room.confessFlag[configs.Uid] = true
+}
+
+//IsAllPeace 用于判断是否两个玩家都同意和平
+func (room *Room) IsAllPeace() bool {
+	return room.peaceFlag[room.playerBlack] && room.peaceFlag[room.playerBlack]
+}
+
+//IsAllConfess 用于判断是否两个玩家都同意和平
+func (room *Room) IsAllConfess() bool {
+	return room.confessFlag[room.playerBlack] && room.confessFlag[room.playerBlack]
+}
+
+//IsWhitePlayer 用于当前用用户判断是否是白色玩家
+func (room *Room) IsWhitePlayer() bool {
+	return configs.Uid == room.playerWhite
+}
+
 //Regret 用于玩家悔棋
 func (room *Room) Regret() {
 	room.board.cells[room.board.lastStepX][room.board.lastStepY] = Empty
@@ -96,6 +130,11 @@ func (room *Room) Regret() {
 //IsSpectators 用于判断当前用户是否是观众
 func (room *Room) IsSpectators() bool {
 	return room.spectators[configs.Uid]
+}
+
+//IsPlayers 用于判断当前用户是否是玩家
+func (room *Room) IsPlayers() bool {
+	return configs.Uid == room.playerBlack || configs.Uid == room.playerWhite
 }
 
 //SetMsg
@@ -321,4 +360,15 @@ func RoomChat(c *gin.Context) {
 //Regret
 func Regret(c *gin.Context) {
 	RoomList.Rooms[configs.RoomId].Regret()
+	err := db.MysqlClient.Delete(&db.Round{
+		Rid: configs.RoomId,
+		Uid: configs.Uid,
+		X:   RoomList.Rooms[configs.RoomId].board.lastStepX,
+		Y:   RoomList.Rooms[configs.RoomId].board.lastStepY,
+	}).Error
+	if err != nil {
+		logs.Error.Println(err)
+		return
+	}
+	ViewStatus(c)
 }

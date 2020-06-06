@@ -92,7 +92,7 @@ func PlayChess(c *gin.Context) {
 	}
 
 	//response.OkWithData(c, RoomList.rooms[configs.RoomId].board.GetStatusByDb())
-	c.String(200, RoomList.Rooms[configs.RoomId].board.GetStatus())
+	ViewStatus(c)
 }
 
 //ViewStatus
@@ -118,4 +118,37 @@ func Chat(c *gin.Context) {
 	RoomList.Rooms[configs.RoomId].SetMsg(m.Msg)
 
 	response.OkWithData(c, GetChats())
+}
+
+//Peace
+func Peace(c *gin.Context) {
+	RoomList.Rooms[configs.RoomId].SetPeaceFlag()
+
+	if !RoomList.Rooms[configs.RoomId].IsAllPeace() {
+		response.OkWithData(c, "Waiting for another player to agree")
+		return
+	}
+
+	RoomList.Rooms[configs.RoomId].start = false
+	response.OkWithData(c, "Successful summation！")
+}
+
+//Confess
+func Confess(c *gin.Context) {
+	RoomList.Rooms[configs.RoomId].SetConfessFlag()
+
+	if !RoomList.Rooms[configs.RoomId].IsAllPeace() {
+		response.OkWithData(c, "Waiting for another player to agree")
+		return
+	}
+
+	RoomList.Rooms[configs.RoomId].start = false
+	response.OkWithData(c, "Successful confess！")
+}
+
+//GetHistory
+func GetHistory(c *gin.Context) {
+	for _, v := range configs.History {
+		c.String(200, v)
+	}
 }

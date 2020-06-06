@@ -151,5 +151,6 @@ func (board *Board) GetStatus() (s string) {
 		}
 		s = s + "\n"
 	}
+	configs.History = append(configs.History, s)
 	return
 }

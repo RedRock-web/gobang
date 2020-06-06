@@ -45,9 +45,10 @@ func SetRouter(r *gin.Engine) {
 	{
 		game.POST("/start", gobang.StartGame)
 		game.POST("/play", middleware.CheckPlayerSize(), middleware.HasStartGame(), gobang.Play)
-		game.POST("/peace", middleware.HasStartGame())
-		game.POST("/confess", middleware.HasStartGame())
-		game.POST("/regret", middleware.HasStartGame(), gobang.Regret)
-		room.POST("/chat", middleware.HasStartGame(), gobang.Chat)
+		game.POST("/peace", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Peace)
+		game.POST("/confess", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Confess)
+		game.POST("/regret", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Regret)
+		game.POST("/chat", middleware.HasStartGame(), gobang.Chat)
+		game.POST("/history", gobang.GetHistory)
 	}
 }

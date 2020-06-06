@@ -41,6 +41,7 @@ func LoginAuth() gin.HandlerFunc {
 	}
 }
 
+//HasJoinRoom
 func HasJoinRoom() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r db.Room
@@ -142,6 +143,18 @@ func PasswdAuth() gin.HandlerFunc {
 
 		if !gobang.RoomList.Rooms[configs.RoomId].IsPasswdOk(p.Password) {
 			response.Error(c, 10005, "password is not right!")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+//PlayerAuth 用于鉴别是否玩家
+func PlayerAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !gobang.RoomList.Rooms[configs.RoomId].IsPlayers() {
+			response.OkWithData(c, "you are not a players")
 			c.Abort()
 			return
 		}

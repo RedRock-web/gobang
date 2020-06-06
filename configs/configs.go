@@ -7,8 +7,9 @@
 package configs
 
 var (
-	Uid    int
-	RoomId int
+	Uid     int
+	RoomId  int
+	History []string
 )
 
 type LoginForm struct {
