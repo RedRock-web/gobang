@@ -1,1 +1,5 @@
 Error:2020/06/05 21:21:19 mys.go:25: sql: unknown driver "mysql" (forgotten import?)
+Error:2020/06/06 09:03:12 middleware.go:27: http: named cookie not present
+Error:2020/06/06 09:05:29 middleware.go:27: http: named cookie not present
+Error:2020/06/06 09:08:37 middleware.go:20: http: named cookie not present
+Error:2020/06/06 10:21:07 mys.go:35: Error 1049: Unknown database 'gobang'

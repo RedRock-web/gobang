@@ -4,24 +4,22 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gobang/configs"
 	"gobang/db"
 	"gobang/jwts"
 	"gobang/logs"
 	"gobang/response"
+	"time"
 )
 
 const (
 	CookieName = "jwts"
-	host       = "localhost"
+	host       = "localhost:8080"
 )
 
-type User struct {
-
-}
-
-
+//Register
 func Register(c *gin.Context) {
 	var l configs.LoginForm
 
@@ -39,16 +37,17 @@ func Register(c *gin.Context) {
 
 	jwt := jwts.NewJwt()
 	data, err := jwt.Create(l, jwts.Key)
-
+	fmt.Println(data)
 	if err != nil {
 		logs.Error.Println(err)
 		return
 	}
 
-	c.SetCookie(CookieName, data, 1000, "/", host, false, true)
+	c.SetCookie(CookieName, data, 10000, "/", host, false, true)
 	response.OkWithData(c, "register successful!")
 }
 
+//Login
 func Login(c *gin.Context) {
 	var l configs.LoginForm
 
@@ -79,22 +78,32 @@ func Login(c *gin.Context) {
 
 }
 
+//PasswordIsOk
 func PasswordIsOk(l configs.LoginForm) bool {
 	var u db.User
 	db.MysqlClient.Where(db.User{Username: l.Username, Password: l.Password}).First(&u)
 	return u.Gender != ""
 }
 
+//IsRegister
 func IsRegister(l configs.LoginForm) bool {
 	var u db.User
 	db.MysqlClient.Where("username = ?", l.Username).First(&u)
 	return u.Gender != ""
 }
 
+//AddUser
 func AddUser(l configs.LoginForm) error {
-	return db.MysqlClient.Create(&db.User{Username: l.Username, Password: l.Password, Age: 0, Gender: "male"}).Error
+	return db.MysqlClient.Create(&db.User{
+		Uid:      int(time.Now().Unix()) - 10000,
+		Age:      18,
+		Gender:   "male",
+		Username: l.Username,
+		Password: l.Password,
+	}).Error
 }
 
+//GetInfo
 func GetInfo(c *gin.Context) {
 	var i configs.InfoForm
 
@@ -127,6 +136,7 @@ func GetInfo(c *gin.Context) {
 	})
 }
 
+//ModifyInfo
 func ModifyInfo(c *gin.Context) {
 	var i configs.InfoForm
 
@@ -150,4 +160,12 @@ func ModifyInfo(c *gin.Context) {
 		return
 	}
 	response.Ok(c)
+}
+
+//GetUidByUsername
+func GetUidByUsername(username string) int {
+	var u db.User
+
+	db.MysqlClient.Where("username = ?", username).First(&u)
+	return u.Uid
 }

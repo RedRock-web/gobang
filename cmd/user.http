@@ -1,5 +1,4 @@
-### login
-POST http://localhost:8080/login
+POST http://localhost:8080/create-room
 Content-Type: application/json
 
 {
@@ -7,13 +6,15 @@ Content-Type: application/json
   "password": "sdfdf"
 }
 
+
 ### register
 POST http://localhost:8080/register
 Content-Type: application/json
 
 {
-  "username": "sdf",
-  "password": "sdfdsf"
+  "username": "sdfs",
+  "password": "sdfdf"
 }
 
-###
+
+

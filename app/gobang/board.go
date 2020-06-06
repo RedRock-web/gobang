@@ -8,6 +8,7 @@ const (
 	Size  = 15 //棋盘大小
 	Black = 1  //表示黑色棋子
 	White = 2  //表示白色棋子
+	Num   = 5
 )
 
 //Board 表示棋盘
@@ -35,5 +36,52 @@ func (board *Board) setCells() {
 }
 
 //CheckWin 判断哪一个玩家胜利了
-func (board *Board) CheckWin() int {
+//func (board *Board) CheckWin() int {
+//	count := 0
+//	winFlag := 1
+//	i := board.lastStepX - 1
+//	j := board.lastStepY
+//
+//	for ; i >= 0 && count < Num; i-- {
+//		count++
+//		if board.cells[i][j] == board.color {
+//			winFlag++
+//		} else {
+//			break
+//		}
+//	}
+//
+//}
+
+func (board *Board) getTimes(cx, cy, dx, dy, c int) int {
+	if c == Empty {
+		return 0
+	}
+	if dx == 0 && dy == 0 {
+		return 0
+	}
+	times := 0
+	for i := 1; i <= 5; i++ {
+		nx := cx + (dx * i)
+		ny := cy + (dy * i)
+		if nx < 0 || ny < 0 || nx >= len(board.cells) || ny >= len(board.cells[0]) {
+			continue
+		}
+		nc := board.cells[nx][ny]
+		if nc == Empty || c != nc {
+			break
+		}
+		times++
+	}
+	return times
+}
+
+func (board *Board) checkWin(x, y, d int, color int) bool {
+	if d == Empty {
+		return false
+	}
+	if (board.getTimes(x, y, 0, 1, d)+board.getTimes(x, y, 0, -1, d)) >= 4 || (board.getTimes(x, y, 1, 0, d)+board.getTimes(x, y, -1, 0, d)) >= 4 || (board.getTimes(x, y, 1, 1, d)+board.getTimes(x, y, -1, -1, d)) >= 4 || (board.getTimes(x, y, 1, -1, d)+board.getTimes(x, y, -1, 1, d)) >= 4 {
+		return d == color
+	}
+	return false
 }
