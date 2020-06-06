@@ -22,3 +22,8 @@ type InfoForm struct {
 type RoomForm struct {
 	Id int
 }
+
+type PlayFrom struct {
+	X int
+	Y int
+}

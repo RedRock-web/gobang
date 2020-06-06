@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"gobang/configs"
 	"strconv"
 	"strings"
@@ -164,6 +163,5 @@ func (j *Jwt) headerAndPayload2str() (string, error) {
 func HmacSha256(str string, key string) []byte {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(key))
-	fmt.Println(mac.Sum(nil))
 	return mac.Sum(nil)
 }

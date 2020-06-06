@@ -27,18 +27,18 @@ func SetRouter(r *gin.Engine) {
 		users.POST("/modify-info", middleware.LoginAuth(), user.ModifyInfo)
 	}
 
-	room := r.Group("", middleware.LoginAuth())
+	room := r.Group("", middleware.LoginAuth(), middleware.GetUid())
 	{
-		room.POST("/create-room", middleware.GetUid(), middleware.HasJoinRoom(), gobang.CreateRoom)
-		room.POST("/join-room", middleware.GetUid(), middleware.HasJoinRoom(), gobang.JoinPlayer)
+		room.POST("/create-room", middleware.HasJoinRoom(), gobang.CreateRoom)
+		room.POST("/join-room", middleware.HasJoinRoom(), gobang.JoinPlayer)
 		room.POST("/exit-room", middleware.NeedJoinRoom(), gobang.ExitRoom)
 		room.POST("ready", middleware.NeedJoinRoom(), gobang.Ready)
 	}
 
-	game := r.Group("", middleware.LoginAuth())
+	game := r.Group("", middleware.LoginAuth(), middleware.GetUid(), middleware.NeedJoinRoom())
 	{
-		game.POST("start-game")
+		game.POST("start-game", gobang.StartGame)
 		game.POST("end-game")
-		game.POST("play-chess")
+		game.POST("play-chess", middleware.CheckPlayeSize(), gobang.PlayChess)
 	}
 }

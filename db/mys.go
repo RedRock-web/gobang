@@ -11,6 +11,7 @@ import (
 
 var MysqlClient = &gorm.DB{}
 
+//User 表示一个用户
 type User struct {
 	gorm.Model
 	Uid      int
@@ -20,6 +21,7 @@ type User struct {
 	Password string
 }
 
+//Room 表示一个房间
 type Room struct {
 	gorm.Model
 	Rid           int // 房间 id
@@ -29,6 +31,17 @@ type Room struct {
 	PlayerWhite   int // 白手玩家
 }
 
+//Round 表示一个回合
+type Round struct {
+	gorm.Model
+	Steps int // 回合数
+	Rid   int // 房间 id
+	Uid   int // 玩家 id
+	X     int // 横坐标
+	Y     int // 纵坐标
+}
+
+//Start 初始化 mysql 数据库
 func Start() {
 	db, err := gorm.Open("mysql", "root:mima@/gobang?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
@@ -46,6 +59,12 @@ func Start() {
 		db.AutoMigrate(&User{})
 	} else {
 		db.CreateTable(&User{})
+	}
+
+	if db.HasTable(&Round{}) {
+		db.AutoMigrate(&Round{})
+	} else {
+		db.CreateTable(&Round{})
 	}
 
 	MysqlClient = db

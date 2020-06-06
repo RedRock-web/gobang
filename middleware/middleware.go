@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"gobang/app/user"
 	"gobang/configs"
 	"gobang/db"
@@ -57,6 +58,7 @@ func NeedJoinRoom() gin.HandlerFunc {
 		var r db.Room
 
 		db.MysqlClient.Where("owner = ? or another_player = ?", configs.Uid, configs.Uid).First(&r)
+
 		if r.Rid == 0 {
 			response.Error(c, 10004, "needed join a room!")
 			c.Abort()
@@ -83,5 +85,30 @@ func GetUid() gin.HandlerFunc {
 			return
 		}
 		configs.Uid = user.GetUidByUsername(l.Username)
+	}
+}
+
+func HasStartGame() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
+
+func CheckPlayeSize() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		p := configs.PlayFrom{}
+
+		if err := c.ShouldBindBodyWith(&p, binding.JSON); err != nil {
+			logs.Error.Println(err)
+			response.FormError(c)
+			c.Abort()
+			return
+		}
+
+		if !(p.X >= 0 && p.Y >= 0 && p.X <= 15 && p.Y <= 15) {
+			response.FormError(c)
+			c.Abort()
+			return
+		}
 	}
 }

@@ -3,3 +3,16 @@ Error:2020/06/06 09:03:12 middleware.go:27: http: named cookie not present
 Error:2020/06/06 09:05:29 middleware.go:27: http: named cookie not present
 Error:2020/06/06 09:08:37 middleware.go:20: http: named cookie not present
 Error:2020/06/06 10:21:07 mys.go:35: Error 1049: Unknown database 'gobang'
+Error:2020/06/06 14:25:41 game.go:45: EOF
+Error:2020/06/06 14:33:44 game.go:52: EOF
+Error:2020/06/06 14:35:04 middleware.go:102: invalid character 's' after object key:value pair
+Error:2020/06/06 14:43:29 game.go:52: EOF
+Error:2020/06/06 14:44:40 game.go:52: EOF
+Error:2020/06/06 14:44:41 game.go:52: EOF
+Error:2020/06/06 14:44:48 game.go:52: EOF
+Error:2020/06/06 14:44:52 game.go:52: EOF
+Error:2020/06/06 14:44:52 board.go:52: <nil>
+Error:2020/06/06 14:46:50 game.go:51: EOF
+Error:2020/06/06 14:46:50 board.go:52: <nil>
+Error:2020/06/06 14:50:08 game.go:49: EOF
+Error:2020/06/06 14:56:15 game.go:50: EOF

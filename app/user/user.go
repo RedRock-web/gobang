@@ -4,7 +4,6 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gobang/configs"
 	"gobang/db"
@@ -37,7 +36,6 @@ func Register(c *gin.Context) {
 
 	jwt := jwts.NewJwt()
 	data, err := jwt.Create(l, jwts.Key)
-	fmt.Println(data)
 	if err != nil {
 		logs.Error.Println(err)
 		return
