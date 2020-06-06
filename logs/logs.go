@@ -1,6 +1,9 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 20:50
+
+// package logs 简单封装了一下日志功能
+
 package logs
 
 import (

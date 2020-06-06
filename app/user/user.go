@@ -1,6 +1,10 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 20:58
+
+// package user 实现了用户的一些功能
+//
+//
 package user
 
 import (

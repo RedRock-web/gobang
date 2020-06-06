@@ -1,9 +1,13 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 21:38
+
+// package gobang 实现了五子棋功能
+
 package gobang
 
 import (
+	"fmt"
 	"gobang/configs"
 	"gobang/db"
 	"gobang/logs"
@@ -42,10 +46,10 @@ func (board *Board) setCells() {
 }
 
 func (board *Board) playChess(x int, y int) {
-	roomList.rooms[configs.RoomId].steps++
+	RoomList.Rooms[configs.RoomId].steps++
 
 	err := db.MysqlClient.Create(&db.Round{
-		Steps: roomList.rooms[configs.RoomId].steps,
+		Steps: RoomList.Rooms[configs.RoomId].steps,
 		Rid:   configs.RoomId,
 		Uid:   configs.Uid,
 		X:     x,
@@ -56,20 +60,20 @@ func (board *Board) playChess(x int, y int) {
 		logs.Error.Println(err)
 	}
 
-	roomList.rooms[configs.RoomId].board.lastStepX = x
-	roomList.rooms[configs.RoomId].board.lastStepY = y
-	roomList.rooms[configs.RoomId].board.lastColor = roomList.rooms[configs.RoomId].playingColor
+	RoomList.Rooms[configs.RoomId].board.lastStepX = x
+	RoomList.Rooms[configs.RoomId].board.lastStepY = y
+	RoomList.Rooms[configs.RoomId].board.lastColor = RoomList.Rooms[configs.RoomId].playingColor
 
 	board.setCells()
 
-	roomList.rooms[configs.RoomId].holding = !roomList.rooms[configs.RoomId].holding
+	RoomList.Rooms[configs.RoomId].holding = !RoomList.Rooms[configs.RoomId].holding
 
-	if roomList.rooms[configs.RoomId].holding {
-		roomList.rooms[configs.RoomId].playingColor = Black
-		roomList.rooms[configs.RoomId].playingUid = roomList.rooms[configs.RoomId].playerBlack
+	if RoomList.Rooms[configs.RoomId].holding {
+		RoomList.Rooms[configs.RoomId].playingColor = Black
+		RoomList.Rooms[configs.RoomId].playingUid = RoomList.Rooms[configs.RoomId].playerBlack
 	} else {
-		roomList.rooms[configs.RoomId].playingColor = White
-		roomList.rooms[configs.RoomId].playingUid = roomList.rooms[configs.RoomId].playerWhite
+		RoomList.Rooms[configs.RoomId].playingColor = White
+		RoomList.Rooms[configs.RoomId].playingUid = RoomList.Rooms[configs.RoomId].playerWhite
 	}
 }
 
@@ -102,7 +106,8 @@ func (board *Board) checkWin() bool {
 	return (board.getTimes(board.lastStepX, board.lastStepY, 0, 1, board.lastColor)+board.getTimes(board.lastStepX, board.lastStepY, 0, -1, board.lastColor)) >= 4 || (board.getTimes(board.lastStepX, board.lastStepY, 1, 0, board.lastColor)+board.getTimes(board.lastStepX, board.lastStepY, -1, 0, board.lastColor)) >= 4 || (board.getTimes(board.lastStepX, board.lastStepY, 1, 1, board.lastColor)+board.getTimes(board.lastStepX, board.lastStepY, -1, -1, board.lastColor)) >= 4 || (board.getTimes(board.lastStepX, board.lastStepY, 1, -1, board.lastColor)+board.getTimes(board.lastStepX, board.lastStepY, -1, 1, board.lastColor)) >= 4
 }
 
-func (board *Board) GetStatus() []db.Round {
+//GetStatusByDb 按时间/步骤获取下棋信息
+func (board *Board) GetStatusByDb() []db.Round {
 	var b []db.Round
 
 	if err := db.MysqlClient.Where("rid = ?", configs.RoomId).Find(&b).Error; err != nil {
@@ -112,9 +117,39 @@ func (board *Board) GetStatus() []db.Round {
 	return b
 }
 
-func (board *Board) IsNullCell() bool {
-	logs.Info.Println(board.lastStepX, board.lastStepY)
-	logs.Info.Println(board.cells[board.lastStepX][board.lastStepY])
-	logs.Info.Println(board.cells[board.lastStepX][board.lastStepY] == Empty)
-	return board.cells[board.lastStepX][board.lastStepY] == Empty
+//IsNullCell 用于判断该坐标是否为空
+func (board *Board) IsNullCell(x int, y int) bool {
+	return board.cells[x][y] == Empty
+}
+
+//PrintStatus 在控制台输出实时下棋信息
+func (board *Board) PrintStatus() {
+	for i := 0; i < Size; i++ {
+		for j := 0; j < Size; j++ {
+			if board.cells[i][j] == 1 {
+				fmt.Printf("* ")
+			} else if board.cells[i][j] == 2 {
+				fmt.Print("# ")
+			} else {
+				fmt.Print("0 ")
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func (board *Board) GetStatus() (s string) {
+	for i := 0; i < Size; i++ {
+		for j := 0; j < Size; j++ {
+			if board.cells[i][j] == 1 {
+				s = s + "* "
+			} else if board.cells[i][j] == 2 {
+				s = s + "# "
+			} else {
+				s = s + "0 "
+			}
+		}
+		s = s + "\n"
+	}
+	return
 }

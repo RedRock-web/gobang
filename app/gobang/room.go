@@ -5,12 +5,24 @@ package gobang
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"gobang/configs"
 	"gobang/db"
+	"gobang/logs"
 	"gobang/response"
 	"strconv"
 	"time"
 )
+
+//RoomList 是房间列表
+type RoomLists struct {
+	Rooms map[int]*Room
+}
+
+// RoomList 是房间列表实例
+var RoomList = &RoomLists{
+	Rooms: make(map[int]*Room),
+}
 
 // Room 表示一个房间
 type Room struct {
@@ -27,16 +39,10 @@ type Room struct {
 	ready         map[int]bool // 玩家准备状态，true 表示已准备
 	open          bool         // 表示房间是否已开
 	start         bool         // 表示是否游戏已经开始
-}
-
-//RoomList 是房间列表
-type RoomList struct {
-	rooms map[int]*Room
-}
-
-// roomList 是房间列表实例
-var roomList = &RoomList{
-	rooms: make(map[int]*Room),
+	winer         int          // 胜利者
+	password      int          // 房间密码
+	spectators    map[int]bool // 观众
+	msg           string       // 发的消息
 }
 
 // NewRoom 在当前房间列表中新建一个房间
@@ -55,8 +61,12 @@ func NewRoom(uid int) *Room {
 		ready:         map[int]bool{},
 		open:          false,
 		start:         false,
+		winer:         0,
+		password:      0,
+		spectators:    map[int]bool{},
+		msg:           "",
 	}
-	roomList.rooms[room.id] = room
+	RoomList.Rooms[room.id] = room
 
 	db.MysqlClient.Create(&db.Room{
 		Rid:           room.id,
@@ -68,14 +78,57 @@ func NewRoom(uid int) *Room {
 	return room
 }
 
+//SetPassword 设置房间密码
+func (room *Room) SetPassword(password int) {
+	room.password = password
+}
+
+//IsPasswdOk 判断房间密码是否正确
+func (room *Room) IsPasswdOk(passwd int) bool {
+	return room.password == passwd
+}
+
+//Regret 用于玩家悔棋
+func (room *Room) Regret() {
+	room.board.cells[room.board.lastStepX][room.board.lastStepY] = Empty
+}
+
+//IsSpectators 用于判断当前用户是否是观众
+func (room *Room) IsSpectators() bool {
+	return room.spectators[configs.Uid]
+}
+
+//SetMsg
+func (room *Room) SetMsg(msg string) {
+	room.msg = msg
+	db.MysqlClient.Create(&db.Message{
+		Rid: configs.RoomId,
+		Uid: configs.Uid,
+		Msg: msg,
+	})
+}
+
+func (room *Room) HavePassword() bool {
+	return room.password == 0
+}
+
 //GetRandomRoomId  获取当前时间戳为房间 id
 func GetRandomRoomId() int {
 	return int(time.Now().Unix())
 }
 
+func (room *Room) IsStart() bool {
+	return room.start
+}
+
 // canStart 判断是否能够开始房间
 func (room *Room) canStart() bool {
 	return room.IsAllReady() && room.playerBlack != 0 && room.playerWhite != 0
+}
+
+//AddSpectators 增加观众
+func (room *Room) AddSpectators(uid int) {
+	room.spectators[uid] = true
 }
 
 // Ready 用于玩家切换准备状态
@@ -92,7 +145,7 @@ func (room *Room) IsAllReady() bool {
 //SetAnotherPlayer 用于设置另一个玩家
 func (room *Room) SetAnotherPlayer() {
 	db.MysqlClient.Model(&db.Room{}).Where("rid = ?", configs.RoomId).Update("another_player", configs.Uid)
-	roomList.rooms[room.id].anotherPlayer = configs.Uid
+	RoomList.Rooms[room.id].anotherPlayer = configs.Uid
 }
 
 //SetPlayerBlack 用于设置黑色玩家，默认为开房玩家,默认未准备
@@ -129,7 +182,7 @@ func (room *Room) startGame() {
 		return
 	}
 	room.steps = 0
-	roomList.rooms[configs.RoomId].start = true
+	RoomList.Rooms[configs.RoomId].start = true
 }
 
 //gameOver 结束游戏，并关闭房间
@@ -138,12 +191,27 @@ func (room *Room) gameOver() {
 		return
 	}
 	room.open = false
-	roomList.rooms[room.id] = nil
+	RoomList.Rooms[room.id] = nil
 }
 
 //IsRoomExist 用于判断房间是否存在
 func IsRoomExist(roomId int) bool {
-	return roomList.rooms[roomId] == nil
+	return RoomList.Rooms[roomId] == nil
+}
+
+//JoinRoom 用于玩家加入房间，满员则加入观众
+func JoinRoom(c *gin.Context) {
+	if RoomList.Rooms[configs.RoomId].IsFullPlayer() {
+		JoinSpectators(c)
+		return
+	}
+
+	JoinPlayer(c)
+}
+
+//JoinSpectators 用于玩家加入观众
+func JoinSpectators(c *gin.Context) {
+	RoomList.Rooms[configs.RoomId].AddSpectators(configs.Uid)
 }
 
 //JoinPlayer 用于玩家加入房间
@@ -160,18 +228,18 @@ func JoinPlayer(c *gin.Context) {
 		return
 	}
 
-	if roomList.rooms[r.Id].IsOpen() {
+	if RoomList.Rooms[r.Id].IsOpen() {
 		response.OkWithData(c, "room already open!")
 		return
 	}
 
-	if roomList.rooms[r.Id].IsFullPlayer() {
+	if RoomList.Rooms[r.Id].IsFullPlayer() {
 		response.OkWithData(c, "room already full player!")
 		return
 	}
 
-	roomList.rooms[r.Id].SetAnotherPlayer()
-	roomList.rooms[r.Id].SetPlayerWhite()
+	RoomList.Rooms[r.Id].SetAnotherPlayer()
+	RoomList.Rooms[r.Id].SetPlayerWhite()
 
 	response.OkWithData(c, "successful!")
 }
@@ -179,12 +247,16 @@ func JoinPlayer(c *gin.Context) {
 //CreateRoom 用于创建房间
 func CreateRoom(c *gin.Context) {
 	room := NewRoom(configs.Uid)
+
 	if IsRoomExist(room.id) {
 		response.Error(c, 10003, "room is exist!")
 		return
 	}
+
 	configs.RoomId = room.id
+
 	room.SetPlayerBlack()
+
 	response.OkWithData(c, "create room successful,room id is "+strconv.Itoa(room.id))
 }
 
@@ -195,17 +267,18 @@ func ExitRoom(c *gin.Context) {
 		return
 	}
 
-	roomList.rooms[r.Id].gameOver()
+	RoomList.Rooms[r.Id].gameOver()
+	response.OkWithData(c, "Successfully left the room！")
 }
 
 func Ready(c *gin.Context) {
-	red := roomList.rooms[configs.RoomId].ready[configs.Uid]
+	red := RoomList.Rooms[configs.RoomId].ready[configs.Uid]
 
-	roomList.rooms[configs.RoomId].Ready(configs.Uid)
+	RoomList.Rooms[configs.RoomId].Ready(configs.Uid)
 
 	if !red == true {
 		response.OkWithData(c, "already prepared")
-		if roomList.rooms[configs.RoomId].IsAllReady() {
+		if RoomList.Rooms[configs.RoomId].IsAllReady() {
 			response.OkWithData(c, "all player has prepared,can start the game!")
 		} else {
 			response.OkWithData(c, "another player is not prepare!")
@@ -213,4 +286,39 @@ func Ready(c *gin.Context) {
 	} else {
 		response.OkWithData(c, "already cancel prepare")
 	}
+}
+
+func Password(c *gin.Context) {
+	var p configs.PasswdFrom
+
+	if err := c.BindWith(&p, binding.JSON); err != nil {
+		logs.Error.Println(err)
+		return
+	}
+
+	if RoomList.Rooms[configs.RoomId].owner != configs.Uid {
+		response.OkWithData(c, "Non-homeowner, unable to change password！")
+		return
+	}
+
+	RoomList.Rooms[configs.RoomId].SetPassword(p.Password)
+
+	response.OkWithData(c, "set password successfully!")
+}
+
+// RoomChat
+func RoomChat(c *gin.Context) {
+	var m configs.MsgForm
+
+	if err := c.BindWith(&m, binding.JSON); err != nil {
+		response.FormError(c)
+		return
+	}
+
+	RoomList.Rooms[configs.RoomId].SetMsg(m.Msg)
+}
+
+//Regret
+func Regret(c *gin.Context) {
+	RoomList.Rooms[configs.RoomId].Regret()
 }

@@ -1,6 +1,8 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 20:49
+
+// package response 简单封装了一下 请求后的 response
 package response
 
 import (

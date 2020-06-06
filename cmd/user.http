@@ -1,11 +1,6 @@
 POST http://localhost:8080/create-room
 Content-Type: application/json
 
-{
-  "username": "sdfs",
-  "password": "sdfdf"
-}
-
 
 ### register
 POST http://localhost:8080/register

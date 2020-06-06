@@ -1,6 +1,8 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 20:51
+
+// package db 简单实现了一些对数据库的使用
 package db
 
 import (
@@ -25,6 +27,7 @@ type User struct {
 type Room struct {
 	gorm.Model
 	Rid           int // 房间 id
+	Password      int // 密码
 	Owner         int // 开房的玩家，默认为黑手
 	AnotherPlayer int // 另一个玩家
 	PlayerBlack   int // 黑手玩家
@@ -39,6 +42,14 @@ type Round struct {
 	Uid   int // 玩家 id
 	X     int // 横坐标
 	Y     int // 纵坐标
+}
+
+//Message
+type Message struct {
+	gorm.Model
+	Rid int
+	Uid int
+	Msg string
 }
 
 //Start 初始化 mysql 数据库

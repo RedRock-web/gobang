@@ -1,6 +1,9 @@
 //@program: gobang
 //@author: edte
 //@create: 2020-06-05 20:50
+
+// package jwts 封装了一下 jwt 鉴权的功能
+//
 package jwts
 
 import (
