@@ -232,11 +232,20 @@ func (room *Room) gameOver() {
 //CloseRoom 关闭房间
 func (room *Room) CloseRoom() {
 	room.open = false
+	RoomList.Rooms[room.id] = nil
 }
 
 //ExitRoom 退出房间
 func (room *Room) ExitRoom() {
-	RoomList.Rooms[room.id] = nil
+	if room.IsOwner() {
+		room.CloseRoom()
+		return
+	}
+	if room.IsSpectators() {
+		room.spectators[configs.Uid] = false
+		return
+	}
+	room.playerBlack = 0
 }
 
 //IsOwner 判断用户是否是房间拥有者
