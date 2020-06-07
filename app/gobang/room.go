@@ -109,12 +109,12 @@ func (room *Room) SetConfessFlag() {
 
 //IsAllPeace 用于判断是否两个玩家都同意和平
 func (room *Room) IsAllPeace() bool {
-	return room.peaceFlag[room.playerBlack] && room.peaceFlag[room.playerBlack]
+	return room.peaceFlag[room.playerBlack] && room.peaceFlag[room.playerWhite]
 }
 
 //IsAllConfess 用于判断是否两个玩家都同意和平
 func (room *Room) IsAllConfess() bool {
-	return room.confessFlag[room.playerBlack] && room.confessFlag[room.playerBlack]
+	return room.confessFlag[room.playerBlack] && room.confessFlag[room.playerWhite]
 }
 
 //IsWhitePlayer 用于当前用用户判断是否是白色玩家

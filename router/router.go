@@ -50,11 +50,11 @@ func SetRouter(r *gin.Engine) {
 	game := r.Group("/game", middleware.LoginAuth(), middleware.GetUid(), middleware.JoinRoomAuth())
 	{
 		game.POST("/start", gobang.StartGame)
-		game.POST("/play", middleware.CheckPlayerSize(), middleware.HasStartGame(), gobang.Play)
+		game.POST("/play", middleware.CheckPlayerSize(), middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Play)
 		game.POST("/peace", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Peace)
 		game.POST("/confess", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Confess)
 		game.POST("/regret", middleware.HasStartGame(), middleware.PlayerAuth(), gobang.Regret)
 		game.POST("/chat", middleware.HasStartGame(), gobang.Chat)
-		game.POST("/history", gobang.GetHistory)
+		game.POST("/history", middleware.PlayerAuth(), gobang.GetHistory)
 	}
 }

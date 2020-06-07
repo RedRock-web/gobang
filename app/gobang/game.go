@@ -63,8 +63,6 @@ func PlayChess(c *gin.Context) {
 		return
 	}
 
-	logs.Info.Println(p)
-
 	if configs.Uid != RoomList.Rooms[configs.RoomId].playingUid {
 		response.OkWithData(c, "Your round is over！")
 		return
@@ -137,7 +135,7 @@ func Peace(c *gin.Context) {
 func Confess(c *gin.Context) {
 	RoomList.Rooms[configs.RoomId].SetConfessFlag()
 
-	if !RoomList.Rooms[configs.RoomId].IsAllPeace() {
+	if !RoomList.Rooms[configs.RoomId].IsAllConfess() {
 		response.OkWithData(c, "Waiting for another player to agree")
 		return
 	}

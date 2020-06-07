@@ -98,8 +98,8 @@ gorm + gin
 | /room/chat     |      |                          |
 | /game/start    | post | 开始游戏                 |
 | /game/play     | post | 玩家下棋/观众观看        |
-| /game/peace    |      |                          |
-| /game/confess  |      |                          |
+| /game/peace    | post | 求和                     |
+| /game/confess  | post | 认输                     |
 | /game/regret   |      |                          |
 | /game/history  |      |                          |
 | /game/chat     |      |                          |
@@ -358,4 +358,29 @@ response
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
 
-* /game/
+* /game/peace
+
+```
+request
+
+response
+{
+    "code": 10000,
+    "data": "Waiting for another player to agree",
+    "message": "ok"
+}
+```
+
+* /game/confess
+
+```
+request
+
+response
+{
+    "code": 10000,
+    "data": "Successful confess！",
+    "message": "ok"
+}
+```
+
