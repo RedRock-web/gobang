@@ -41,7 +41,7 @@ func SetRouter(r *gin.Engine) {
 		room.POST("/create", middleware.NotJoinRoomAuth(), gobang.CreateRoom)
 		room.POST("/join", middleware.NotJoinRoomAuth(), middleware.GetRoomId(), middleware.RoomExistAuth(), middleware.PasswdAuth(), gobang.JoinRoom)
 		room.POST("/exit", middleware.JoinRoomAuth(), gobang.ExitRoom)
-		room.POST("/close", middleware.JoinRoomAuth(), gobang.CloseRoom)
+		room.POST("/close", middleware.JoinRoomAuth(), middleware.OwnerAuth(), gobang.CloseRoom)
 		room.POST("/ready", middleware.JoinRoomAuth(), gobang.Ready)
 		room.POST("/password", middleware.JoinRoomAuth(), gobang.Password)
 		room.POST("/chat", middleware.JoinRoomAuth(), gobang.Chat)

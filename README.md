@@ -92,9 +92,9 @@ gorm + gin
 | /user/modify   | post | 修改用户信息             |
 | /room/create   | post | 创建房间                 |
 | /room/join     | post | 加入房间，成为玩家或观众 |
-| /room/password |      |                          |
-| /room/exit     |      |                          |
-| /room/close    |      |                          |
+| /room/password | post | 设置房间密码             |
+| /room/exit     | post | 退出房间                 |
+| /room/close    | post | 关闭房间                 |
 | /room/chat     |      |                          |
 | /game/start    | post | 开始游戏                 |
 | /game/play     | post | 玩家下棋/观众观看        |
@@ -274,6 +274,18 @@ response
 ```
 
 
+
+* /room/close
+
+```
+
+```
+
+* /room/exit
+
+```
+
+```
 
 
 

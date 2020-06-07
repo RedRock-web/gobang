@@ -221,8 +221,14 @@ func GetRoomId() gin.HandlerFunc {
 	}
 }
 
+//OwnerAuth
 func OwnerAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		
+		if !gobang.RoomList.Rooms[configs.RoomId].IsOwner() {
+			response.OkWithData(c, "you are not the room owner!")
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
 }
