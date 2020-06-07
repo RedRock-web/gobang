@@ -15,6 +15,7 @@ import (
 	"gobang/jwts"
 	"gobang/logs"
 	"gobang/response"
+	"net/http"
 )
 
 //Auth 用于登录鉴权
@@ -41,8 +42,8 @@ func LoginAuth() gin.HandlerFunc {
 	}
 }
 
-//HasJoinRoom
-func HasJoinRoom() gin.HandlerFunc {
+//NotJoinRoomAuth
+func NotJoinRoomAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r db.Room
 
@@ -57,7 +58,8 @@ func HasJoinRoom() gin.HandlerFunc {
 	}
 }
 
-func NeedJoinRoom() gin.HandlerFunc {
+//JoinRoomAuth
+func JoinRoomAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r db.Room
 
@@ -95,7 +97,7 @@ func GetUid() gin.HandlerFunc {
 //HasStartGame 用于游戏开始简权
 func HasStartGame() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !gobang.RoomList.Rooms[configs.Uid].IsStart() {
+		if !gobang.RoomList.Rooms[configs.RoomId].IsStart() {
 			response.OkWithData(c, "The game does not start!")
 			c.Abort()
 			return
@@ -129,7 +131,7 @@ func PasswdAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var p configs.PasswdFrom
 
-		if err := c.BindWith(&p, binding.JSON); err != nil {
+		if err := c.ShouldBindBodyWith(&p, binding.JSON); err != nil {
 			response.FormError(c)
 			logs.Error.Println(err)
 			c.Abort()
@@ -146,6 +148,7 @@ func PasswdAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
 		c.Next()
 	}
 }
@@ -158,6 +161,60 @@ func PlayerAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Next()
+	}
+}
+
+//Cors 解决跨域问题
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		origin := c.Request.Header.Get("Origin")
+		if origin != "" {
+			c.Header("Access-Control-Allow-Origin", origin)
+			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+			c.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
+			c.Header("Access-Control-Allow-Credentials", "false")
+			c.Set("content-type", "application/json")
+		}
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		c.Next()
+	}
+}
+
+//RoomExistAuth
+func RoomExistAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//logs.Info.Println("Begin...")
+		//logs.Info.Println(configs.RoomId)
+		//logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId])
+		//logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId] == nil)
+		//logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId] == &gobang.Room{})
+		//logs.Info.Println("End...")
+		if gobang.IsRoomExist(configs.RoomId) {
+			response.OkWithData(c, "room not exist!")
+			c.Abort()
+			return
+		}
+	}
+}
+
+//GetRoomId
+func GetRoomId() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		r := configs.RoomForm{}
+
+		if err := c.ShouldBindBodyWith(&r, binding.JSON); err != nil {
+			logs.Error.Println(err)
+			response.FormError(c)
+			c.Abort()
+			return
+		}
+
+		configs.RoomId = r.Rid
 		c.Next()
 	}
 }

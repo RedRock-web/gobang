@@ -224,18 +224,29 @@ func (room *Room) startGame() {
 	RoomList.Rooms[configs.RoomId].start = true
 }
 
-//gameOver 结束游戏，并关闭房间
+//gameOver 结束游戏
 func (room *Room) gameOver() {
-	if !room.open {
-		return
-	}
+	room.start = false
+}
+
+//CloseRoom 关闭房间
+func (room *Room) CloseRoom() {
 	room.open = false
+}
+
+//ExitRoom 退出房间
+func (room *Room) ExitRoom() {
 	RoomList.Rooms[room.id] = nil
+}
+
+//IsOwner 判断用户是否是房间拥有者
+func (room *Room) IsOwner() bool {
+	return configs.Uid == room.owner
 }
 
 //IsRoomExist 用于判断房间是否存在
 func IsRoomExist(roomId int) bool {
-	return RoomList.Rooms[roomId] == nil
+	return RoomList.Rooms[roomId] == nil //&Room{}
 }
 
 //JoinRoom 用于玩家加入房间，满员则加入观众
@@ -255,30 +266,19 @@ func JoinSpectators(c *gin.Context) {
 
 //JoinPlayer 用于玩家加入房间
 func JoinPlayer(c *gin.Context) {
-	r := configs.RoomForm{}
 
-	if err := c.ShouldBindJSON(&r); err != nil {
-		response.FormError(c)
-		return
-	}
-
-	if IsRoomExist(r.Id) {
-		response.OkWithData(c, "room not exist!")
-		return
-	}
-
-	if RoomList.Rooms[r.Id].IsOpen() {
+	if RoomList.Rooms[configs.RoomId].IsOpen() {
 		response.OkWithData(c, "room already open!")
 		return
 	}
 
-	if RoomList.Rooms[r.Id].IsFullPlayer() {
+	if RoomList.Rooms[configs.RoomId].IsFullPlayer() {
 		response.OkWithData(c, "room already full player!")
 		return
 	}
 
-	RoomList.Rooms[r.Id].SetAnotherPlayer()
-	RoomList.Rooms[r.Id].SetPlayerWhite()
+	RoomList.Rooms[configs.RoomId].SetAnotherPlayer()
+	RoomList.Rooms[configs.RoomId].SetPlayerWhite()
 
 	response.OkWithData(c, "successful!")
 }
@@ -286,12 +286,6 @@ func JoinPlayer(c *gin.Context) {
 //CreateRoom 用于创建房间
 func CreateRoom(c *gin.Context) {
 	room := NewRoom(configs.Uid)
-
-	if IsRoomExist(room.id) {
-		response.Error(c, 10003, "room is exist!")
-		return
-	}
-
 	configs.RoomId = room.id
 
 	room.SetPlayerBlack()
@@ -300,14 +294,13 @@ func CreateRoom(c *gin.Context) {
 }
 
 func ExitRoom(c *gin.Context) {
-	r := configs.RoomForm{}
-	if err := c.ShouldBindJSON(&r); err != nil {
-		response.FormError(c)
-		return
-	}
+	RoomList.Rooms[configs.RoomId].ExitRoom()
+	response.OkWithData(c, "Successfully exit the room！")
+}
 
-	RoomList.Rooms[r.Id].gameOver()
-	response.OkWithData(c, "Successfully left the room！")
+func CloseRoom(c *gin.Context) {
+	RoomList.Rooms[configs.RoomId].CloseRoom()
+	response.OkWithData(c, "Successfully close the room！")
 }
 
 func Ready(c *gin.Context) {
@@ -315,15 +308,15 @@ func Ready(c *gin.Context) {
 
 	RoomList.Rooms[configs.RoomId].Ready(configs.Uid)
 
-	if !red == true {
-		response.OkWithData(c, "already prepared")
-		if RoomList.Rooms[configs.RoomId].IsAllReady() {
-			response.OkWithData(c, "all player has prepared,can start the game!")
-		} else {
-			response.OkWithData(c, "another player is not prepare!")
-		}
-	} else {
+	if red {
 		response.OkWithData(c, "already cancel prepare")
+		return
+	}
+
+	if RoomList.Rooms[configs.RoomId].IsAllReady() {
+		response.OkWithData(c, "already prepared, all player has prepared,can start the game!")
+	} else {
+		response.OkWithData(c, "already prepared, another player is not prepare!")
 	}
 }
 

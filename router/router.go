@@ -23,7 +23,12 @@ func Start() {
 
 //SetRouter 设置路由
 func SetRouter(r *gin.Engine) {
-	users := r.Group("")
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "看到这个说明网站能用")
+	})
+	r.Use(middleware.Cors())
+
+	users := r.Group("/user")
 	{
 		users.POST("/register", user.Register)
 		users.POST("/login", user.Login)
@@ -33,15 +38,16 @@ func SetRouter(r *gin.Engine) {
 
 	room := r.Group("/room", middleware.LoginAuth(), middleware.GetUid())
 	{
-		room.POST("/create", middleware.HasJoinRoom(), gobang.CreateRoom)
-		room.POST("/join", middleware.HasJoinRoom(), middleware.PasswdAuth(), gobang.JoinRoom)
-		room.POST("/exit", middleware.NeedJoinRoom(), gobang.ExitRoom)
-		room.POST("/ready", middleware.NeedJoinRoom(), gobang.Ready)
-		room.POST("/password", middleware.NeedJoinRoom(), gobang.Password)
-		room.POST("/chat", middleware.NeedJoinRoom(), gobang.Chat)
+		room.POST("/create", middleware.NotJoinRoomAuth(), gobang.CreateRoom)
+		room.POST("/join", middleware.NotJoinRoomAuth(), middleware.GetRoomId(), middleware.RoomExistAuth(), middleware.PasswdAuth(), gobang.JoinRoom)
+		room.POST("/exit", middleware.JoinRoomAuth(), gobang.ExitRoom)
+		room.POST("/close", middleware.JoinRoomAuth(), gobang.CloseRoom)
+		room.POST("/ready", middleware.JoinRoomAuth(), gobang.Ready)
+		room.POST("/password", middleware.JoinRoomAuth(), gobang.Password)
+		room.POST("/chat", middleware.JoinRoomAuth(), gobang.Chat)
 	}
 
-	game := r.Group("/game", middleware.LoginAuth(), middleware.GetUid(), middleware.NeedJoinRoom())
+	game := r.Group("/game", middleware.LoginAuth(), middleware.GetUid(), middleware.JoinRoomAuth())
 	{
 		game.POST("/start", gobang.StartGame)
 		game.POST("/play", middleware.CheckPlayerSize(), middleware.HasStartGame(), gobang.Play)

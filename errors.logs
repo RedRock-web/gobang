@@ -16,3 +16,7 @@ Error:2020/06/06 14:46:50 game.go:51: EOF
 Error:2020/06/06 14:46:50 board.go:52: <nil>
 Error:2020/06/06 14:50:08 game.go:49: EOF
 Error:2020/06/06 14:56:15 game.go:50: EOF
+Error:2020/06/07 11:57:34 router.go:21: listen tcp :8080: bind: address already in use
+Error:2020/06/07 11:58:59 router.go:21: listen tcp :8080: bind: address already in use
+Error:2020/06/07 12:07:03 router.go:21: listen tcp :8080: bind: address already in use
+Error:2020/06/07 12:19:39 middleware.go:136: EOF

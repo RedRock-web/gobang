@@ -77,7 +77,6 @@ func Login(c *gin.Context) {
 	} else {
 		response.Error(c, 10003, "password not right!")
 	}
-
 }
 
 //PasswordIsOk
@@ -91,7 +90,7 @@ func PasswordIsOk(l configs.LoginForm) bool {
 func IsRegister(l configs.LoginForm) bool {
 	var u db.User
 	db.MysqlClient.Where("username = ?", l.Username).First(&u)
-	return u.Gender != ""
+	return u.Gender == "male" || u.Gender == "female"
 }
 
 //AddUser
@@ -119,7 +118,7 @@ func GetInfo(c *gin.Context) {
 		Password: "",
 	}
 
-	if IsRegister(l) {
+	if !IsRegister(l) {
 		response.Error(c, 10002, "not registered!")
 		return
 	}
@@ -152,12 +151,13 @@ func ModifyInfo(c *gin.Context) {
 		Password: "",
 	}
 
-	if IsRegister(l) {
+	if !IsRegister(l) {
 		response.Error(c, 10002, "not registered!")
 		return
 	}
 
-	if err := db.MysqlClient.Create(&db.User{Age: i.Age, Gender: i.Gender}).Error; err != nil {
+	if err := db.MysqlClient.Model(&db.User{}).Update(map[string]interface{}{"age": i.Age,
+		"gender": i.Gender}).Error; err != nil {
 		logs.Error.Println(err)
 		return
 	}

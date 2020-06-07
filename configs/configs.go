@@ -24,7 +24,7 @@ type InfoForm struct {
 }
 
 type RoomForm struct {
-	Id int `json:"id"`
+	Rid int
 }
 
 type PlayFrom struct {

@@ -31,7 +31,7 @@ func StartGame(c *gin.Context) {
 	RoomList.Rooms[configs.RoomId].startGame()
 
 	if RoomList.Rooms[configs.RoomId].playingUid == configs.Uid {
-		response.OkWithData(c, "The game starts successfully, you are a white pawn, "+
+		response.OkWithData(c, "The game starts successfully, you are the white pawn, "+
 			"please  perform your turn")
 	} else {
 		response.OkWithData(c, "The game starts successfully, you are the white pawn, "+

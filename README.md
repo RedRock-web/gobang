@@ -38,10 +38,252 @@ gorm + gin
 ## 项目目录
 
 ```
+.
+├── app
+│   ├── gobang
+│   └── user
+├── cmd
+├── configs
+├── db
+├── jwts
+├── logs
+├── middleware
+├── README.md
+├── response
+└── router
+```
 
+## 接口文档
+
+默认 8080 端口
+
+### 列表
+
+| URL            | http | 功能                     |
+| -------------- | ---- | ------------------------ |
+| /              | get  | 测试是否部署成功         |
+| /user/register | post | 用户注册                 |
+| /user/login    | post | 用户登录                 |
+| /user/get      | post | 获取用户信息             |
+| /user/modify   | post | 修改用户信息             |
+| /room/create   | post | 创建房间                 |
+| /room/join     | post | 加入房间，成为玩家或观众 |
+| /room/password |      |                          |
+| /room/exit     |      |                          |
+| /room/close    |      |                          |
+| /room/chat     |      |                          |
+| /game/start    | post | 开始游戏                 |
+| /game/play     | post | 玩家下棋/观众观看        |
+| /game/peace    |      |                          |
+| /game/confess  |      |                          |
+| /game/regret   |      |                          |
+| /game/history  |      |                          |
+| /game/chat     |      |                          |
+
+### 调用流程
+
+用户一共有三个存在状态，普通状态，房间状态，游戏状态。
+
+* 普通状态
+
+用户需要注册登录，这时用户可以修改和查看信息。
+
+* 房间状态
+
+用户可以创建房间。
+
+房间主可以给房间设置密码。
+
+用户可以指定房间号和房间密码加入房间，没有满员则是玩家，满员则是观众。
+
+在房间中用户可以聊天，退出房间。
+
+房间主可以关闭房间。
+
+在房间中可以查看上一次游戏的历史回放。
+
+玩家分为准备和未准备状态。
+
+两个玩家都准备后，任何一个玩家都开始游戏。
+
+* 游戏状态
+
+玩家发送棋子坐标下棋。
+
+玩家轮流下棋。
+
+其中一个玩家胜利后，游戏结束，回到房间。
+
+游戏过程中观众可以观看。
+
+游戏过程中观众可以退出游戏，回到房间中。
+
+游戏过程中用户可以聊天。
+
+游戏过程中玩家可以提出求和/认输/后悔机制，另一个玩家同意后，退出游戏，回到房间中。
+
+### 实例
+
+*  /
+
+```
+request
+
+response
+看到这个说明网站能用
 ```
 
 
 
-## 接口文档
+*  /user/register
+
+```
+request
+{
+    "username": "aa",
+    "password": "sdsfg"
+}
+response
+{
+    "code": 10000,
+    "data": "register successful!",
+    "message": "ok"
+}
+```
+
+
+
+*  /user/login
+
+```
+request
+{
+    "username": "aa",
+    "password": "sdsfg"
+}
+response
+{
+    "code": 10000,
+    "data": "login successful!",
+    "message": "ok"
+}
+```
+
+* /user/get
+
+```
+request
+{
+    "username": "aa"
+}
+
+response
+{
+    "code": 10000,
+    "data": {
+        "age": 18,
+        "gender": "male",
+        "username": "aa"
+    },
+    "message": "ok"
+}
+```
+
+* /user/modify
+
+```
+request
+{
+    "username": "aa",
+    "age":20
+}
+
+response
+{
+    "code": 10000
+}
+```
+
+* /room/create
+
+```
+request
+
+response
+{
+    "code": 10000,
+    "data": "create room successful,room id is 1591500936",
+    "message": "ok"
+}
+```
+
+* /room/join
+
+```
+request
+{
+    "rid": 1591507233
+}
+
+resposne
+{
+    "code": 10000,
+    "data": "successful!",
+    "message": "ok"
+}
+```
+
+* /room/ready
+
+```
+request
+
+response
+{
+    "code": 10000,
+    "data": "already prepared, all player has prepared,can start the game!",
+    "message": "ok"
+}
+```
+
+* /game/start
+
+```
+request
+
+response
+{
+    "code": 10000,
+    "data": "The game starts successfully, you are a white pawn, please  perform your turn",
+    "message": "ok"
+}
+```
+
+* /game/paly
+
+```
+request
+{
+    "x": 4,
+    "y": 4
+}
+
+response
+
+# 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 # 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 # 0 0 * 0 0 0 0 0 0 0 0 0 
+0 0 0 # 0 * 0 0 0 0 0 0 0 0 0 
+0 0 0 0 # 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 * 0 0 * 0 0 0 0 0 0 0 0 0 
+0 0 * 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+```
 
