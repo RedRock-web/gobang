@@ -250,14 +250,17 @@ func (room *Room) ExitRoom() {
 		room.CloseRoom()
 		return
 	}
+
 	if room.IsSpectators() {
 		room.spectators[configs.Uid] = false
 		return
 	}
+
 	if room.IsWhitePlayer() {
-		db.MysqlClient.Model(&db.Room{}).Update("player_black", 0)
+		db.MysqlClient.Model(&db.Room{}).Update("player_white", 0)
 		db.MysqlClient.Model(&db.Room{}).Update("another_player", 0)
-		room.playerBlack = 0
+		room.playerWhite = 0
+		room.anotherPlayer = 0
 	}
 }
 
@@ -273,6 +276,9 @@ func IsRoomExist(roomId int) bool {
 
 //JoinRoom 用于玩家加入房间，满员则加入观众
 func JoinRoom(c *gin.Context) {
+	logs.Info.Println(configs.RoomId)
+	logs.Info.Println(RoomList.Rooms[configs.RoomId].IsFullPlayer())
+
 	if RoomList.Rooms[configs.RoomId].IsFullPlayer() {
 		JoinSpectators(c)
 		return
