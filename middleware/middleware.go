@@ -137,7 +137,6 @@ func PasswdAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId].HavePassword())
 
 		if !gobang.RoomList.Rooms[configs.RoomId].HavePassword() {
 			c.Next()

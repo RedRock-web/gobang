@@ -27,3 +27,4 @@ Error:2020/06/07 16:39:38 room.go:328: json: cannot unmarshal string into Go str
 Error:2020/06/07 16:39:58 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
 Error:2020/06/07 16:40:30 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.Password of type int
 Error:2020/06/07 16:40:31 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.Password of type int
+Error:2020/06/07 17:23:43 room.go:235: Error 1054: Unknown column 'owner' in 'where clause'

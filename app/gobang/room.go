@@ -231,6 +231,15 @@ func (room *Room) gameOver() {
 
 //CloseRoom 关闭房间
 func (room *Room) CloseRoom() {
+	u := db.Room{
+		Owner: configs.Uid,
+	}
+
+	if err := db.MysqlClient.Delete(&u).Error; err != nil {
+		logs.Error.Println(err)
+		return
+	}
+
 	room.open = false
 	RoomList.Rooms[room.id] = nil
 }
@@ -245,7 +254,11 @@ func (room *Room) ExitRoom() {
 		room.spectators[configs.Uid] = false
 		return
 	}
-	room.playerBlack = 0
+	if room.IsWhitePlayer() {
+		db.MysqlClient.Model(&db.Room{}).Update("player_black", 0)
+		db.MysqlClient.Model(&db.Room{}).Update("another_player", 0)
+		room.playerBlack = 0
+	}
 }
 
 //IsOwner 判断用户是否是房间拥有者

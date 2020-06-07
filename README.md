@@ -278,7 +278,14 @@ response
 * /room/close
 
 ```
+request
 
+response
+{
+    "code": 10000,
+    "data": "Successfully close the room！",
+    "message": "ok"
+}
 ```
 
 * /room/exit
