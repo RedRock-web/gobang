@@ -78,5 +78,11 @@ func Start() {
 		db.CreateTable(&Round{})
 	}
 
+	if db.HasTable(&Message{}) {
+		db.AutoMigrate(&Message{})
+	} else {
+		db.CreateTable(&Message{})
+	}
+
 	MysqlClient = db
 }

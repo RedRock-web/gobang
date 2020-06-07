@@ -33,8 +33,8 @@ type PlayFrom struct {
 }
 
 type PasswdFrom struct {
-	Rid      int `json:"rid"`
-	Password int `json:"password"`
+	Rid      int
+	Password string
 }
 
 type MsgForm struct {

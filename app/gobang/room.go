@@ -40,7 +40,7 @@ type Room struct {
 	open          bool         // 表示房间是否已开
 	start         bool         // 表示是否游戏已经开始
 	winer         int          // 胜利者
-	password      int          // 房间密码
+	password      string       // 房间密码
 	spectators    map[int]bool // 观众
 	msg           string       // 发的消息
 	peaceFlag     map[int]bool // 求和
@@ -64,7 +64,7 @@ func NewRoom(uid int) *Room {
 		open:          false,
 		start:         false,
 		winer:         0,
-		password:      0,
+		password:      "",
 		spectators:    map[int]bool{},
 		msg:           "",
 		peaceFlag:     map[int]bool{},
@@ -83,12 +83,12 @@ func NewRoom(uid int) *Room {
 }
 
 //SetPassword 设置房间密码
-func (room *Room) SetPassword(password int) {
+func (room *Room) SetPassword(password string) {
 	room.password = password
 }
 
 //IsPasswdOk 判断房间密码是否正确
-func (room *Room) IsPasswdOk(passwd int) bool {
+func (room *Room) IsPasswdOk(passwd string) bool {
 	return room.password == passwd
 }
 
@@ -148,7 +148,7 @@ func (room *Room) SetMsg(msg string) {
 }
 
 func (room *Room) HavePassword() bool {
-	return room.password == 0
+	return room.password != ""
 }
 
 //GetRandomRoomId  获取当前时间戳为房间 id
@@ -323,7 +323,8 @@ func Ready(c *gin.Context) {
 func Password(c *gin.Context) {
 	var p configs.PasswdFrom
 
-	if err := c.BindWith(&p, binding.JSON); err != nil {
+	if err := c.ShouldBindBodyWith(&p, binding.JSON); err != nil {
+		response.FormError(c)
 		logs.Error.Println(err)
 		return
 	}

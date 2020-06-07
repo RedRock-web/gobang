@@ -137,11 +137,13 @@ func PasswdAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId].HavePassword())
 
 		if !gobang.RoomList.Rooms[configs.RoomId].HavePassword() {
 			c.Next()
 			return
 		}
+		logs.Info.Println(gobang.RoomList.Rooms[configs.RoomId].IsPasswdOk(p.Password))
 
 		if !gobang.RoomList.Rooms[configs.RoomId].IsPasswdOk(p.Password) {
 			response.Error(c, 10005, "password is not right!")
@@ -216,5 +218,11 @@ func GetRoomId() gin.HandlerFunc {
 
 		configs.RoomId = r.Rid
 		c.Next()
+	}
+}
+
+func OwnerAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		
 	}
 }

@@ -20,3 +20,10 @@ Error:2020/06/07 11:57:34 router.go:21: listen tcp :8080: bind: address already 
 Error:2020/06/07 11:58:59 router.go:21: listen tcp :8080: bind: address already in use
 Error:2020/06/07 12:07:03 router.go:21: listen tcp :8080: bind: address already in use
 Error:2020/06/07 12:19:39 middleware.go:136: EOF
+Error:2020/06/07 16:36:54 room.go:327: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
+Error:2020/06/07 16:38:44 room.go:327: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
+Error:2020/06/07 16:39:11 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
+Error:2020/06/07 16:39:38 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
+Error:2020/06/07 16:39:58 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.password of type int
+Error:2020/06/07 16:40:30 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.Password of type int
+Error:2020/06/07 16:40:31 room.go:328: json: cannot unmarshal string into Go struct field PasswdFrom.Password of type int
