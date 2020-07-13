@@ -8,13 +8,15 @@
 package user
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"gobang/configs"
 	"gobang/db"
 	"gobang/jwts"
 	"gobang/logs"
 	"gobang/response"
-	"time"
 )
 
 const (

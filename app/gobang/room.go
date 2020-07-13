@@ -4,14 +4,16 @@
 package gobang
 
 import (
+	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
 	"gobang/configs"
 	"gobang/db"
 	"gobang/logs"
 	"gobang/response"
-	"strconv"
-	"time"
 )
 
 //RoomList 是房间列表

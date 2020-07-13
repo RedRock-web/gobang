@@ -7,6 +7,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"gobang/app/gobang"
 	"gobang/app/user"
 	"gobang/logs"

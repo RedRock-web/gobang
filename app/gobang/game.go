@@ -6,6 +6,7 @@ package gobang
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
 	"gobang/configs"
 	"gobang/db"
 	"gobang/logs"

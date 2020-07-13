@@ -6,8 +6,11 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
 	"gobang/app/gobang"
 	"gobang/app/user"
 	"gobang/configs"
@@ -15,7 +18,6 @@ import (
 	"gobang/jwts"
 	"gobang/logs"
 	"gobang/response"
-	"net/http"
 )
 
 //Auth 用于登录鉴权

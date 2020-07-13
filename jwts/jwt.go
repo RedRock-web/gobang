@@ -12,10 +12,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"gobang/configs"
 	"strconv"
 	"strings"
 	"time"
+
+	"gobang/configs"
 )
 
 const (

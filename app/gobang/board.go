@@ -8,6 +8,7 @@ package gobang
 
 import (
 	"fmt"
+
 	"gobang/configs"
 	"gobang/db"
 	"gobang/logs"
