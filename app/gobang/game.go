@@ -84,9 +84,9 @@ func PlayChess(c *gin.Context) {
 
 	RoomList.Rooms[configs.RoomId].board.playChess(p.X, p.Y)
 	RoomList.Rooms[configs.RoomId].board.PrintStatus()
-
+	response.OkWithData(c, "you are win!")
 	if RoomList.Rooms[configs.RoomId].board.checkWin() {
-		response.OkWithData(c, "you are win!")
+
 		RoomList.Rooms[configs.RoomId].winer = configs.Uid
 	}
 
